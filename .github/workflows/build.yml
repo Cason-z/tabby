@@ -70,7 +70,7 @@ jobs:
       run: yarn run build
 
     - name: Prepackage plugins
-      run: scripts/prepackage-plugins.mjs
+      run: node scripts/prepackage-plugins.mjs
       env:
         ARCH: ${{matrix.arch}}
 
@@ -80,7 +80,7 @@ jobs:
     - run: ln -s ../../node_modules/electron app/node_modules
 
     - name: Build and sign packages
-      run: scripts/build-macos.mjs
+      run: node scripts/build-macos.mjs
       if: github.event_name == 'push' && (github.ref_protected || startsWith(github.ref, 'refs/tags'))
       env:
         ARCH: ${{matrix.arch}}
@@ -95,7 +95,7 @@ jobs:
         # DEBUG: electron-builder,electron-builder:*
 
     - name: Build packages without signing
-      run: scripts/build-macos.mjs
+      run: node scripts/build-macos.mjs
       if: "! (github.event_name == 'push' && startsWith(github.ref, 'refs/tags'))"
       env:
         ARCH: ${{matrix.arch}}
@@ -224,10 +224,10 @@ jobs:
       run: yarn run build --arch=${{matrix.build-arch}} --target_arch=${{matrix.build-arch}}
 
     - name: Prepackage plugins (${{matrix.arch}})
-      run: scripts/prepackage-plugins.mjs
+      run: node scripts/prepackage-plugins.mjs
 
     - name: Build packages (${{matrix.arch}})
-      run: scripts/build-linux.mjs
+      run: node scripts/build-linux.mjs
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         KEYGEN_TOKEN: ${{ secrets.KEYGEN_TOKEN }}
