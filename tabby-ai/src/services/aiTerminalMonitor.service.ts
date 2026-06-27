@@ -25,7 +25,8 @@ export class AITerminalMonitorService extends TerminalDecorator {
 
     private getFrontendText (terminal: BaseTerminalTabComponent<any>): string {
         try {
-            return terminal.frontend.saveState?.() ?? ''
+            const frontend = terminal.frontend
+            return frontend ? frontend.saveState() : ''
         } catch {
             return ''
         }
