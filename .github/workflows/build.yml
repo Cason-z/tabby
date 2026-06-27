@@ -102,9 +102,10 @@ jobs:
         # DEBUG: electron-builder,electron-builder:*
 
     - name: Upload symbols
+      if: ${{ github.repository == 'Eugeny/tabby' || github.repository == 'eugeny/tabby' }}
       run: |
         sudo npm install -g @sentry/cli --unsafe-perm
-        ./scripts/sentry-upload.mjs
+        node scripts/sentry-upload.mjs
       env:
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -242,8 +243,8 @@ jobs:
     - name: Upload symbols (amd64 only)
       run: |
         sudo npm install -g @sentry/cli --unsafe-perm
-        ./scripts/sentry-upload.mjs
-      if: matrix.build-arch == 'x64'
+        node scripts/sentry-upload.mjs
+      if: ${{ matrix.build-arch == 'x64' && (github.repository == 'Eugeny/tabby' || github.repository == 'eugeny/tabby') }}
       env:
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -448,6 +449,7 @@ jobs:
         # DEBUG: electron-builder,electron-builder:*
 
     - name: Upload symbols
+      if: ${{ github.repository == 'Eugeny/tabby' || github.repository == 'eugeny/tabby' }}
       run: |
         npm install @sentry/cli
         node scripts/sentry-upload.mjs
