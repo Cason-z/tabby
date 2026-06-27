@@ -109,7 +109,7 @@ export class AITabbyToolsService {
             case 'sftpRename':
                 return `sftpRename ${action.sourcePath ?? ''} -> ${action.destPath ?? ''}`
             case 'openProfile':
-                return `openProfile ${action.profileId || action.profileName || ''}`.trim()
+                return `openProfile ${action.profileId ?? action.profileName ?? ''}`.trim()
             case 'sendInput':
                 return `sendInput ${JSON.stringify(action.input ?? '')}`
             case 'selectTab':
@@ -137,29 +137,29 @@ export class AITabbyToolsService {
             case 'selectTab':
                 return this.selectTab(action)
             case 'closeTab':
-                return await this.closeTab(action)
+                return this.closeTab(action)
             case 'listProfiles':
-                return await this.listProfiles()
+                return this.listProfiles()
             case 'openProfile':
-                return await this.openProfile(action)
+                return this.openProfile(action)
             case 'quickConnect':
-                return await this.quickConnect(action)
+                return this.quickConnect(action)
             case 'openSSH':
-                return await this.openSSH(action)
+                return this.openSSH(action)
             case 'sftpList':
-                return await this.sftpList(action, activeTerminal)
+                return this.sftpList(action, activeTerminal)
             case 'sftpRead':
-                return await this.sftpRead(action, activeTerminal)
+                return this.sftpRead(action, activeTerminal)
             case 'sftpWrite':
-                return await this.sftpWrite(action, activeTerminal)
+                return this.sftpWrite(action, activeTerminal)
             case 'sftpMkdir':
-                return await this.sftpMkdir(action, activeTerminal)
+                return this.sftpMkdir(action, activeTerminal)
             case 'sftpDelete':
-                return await this.sftpDelete(action, activeTerminal)
+                return this.sftpDelete(action, activeTerminal)
             case 'sftpRename':
-                return await this.sftpRename(action, activeTerminal)
+                return this.sftpRename(action, activeTerminal)
             case 'sftpStat':
-                return await this.sftpStat(action, activeTerminal)
+                return this.sftpStat(action, activeTerminal)
             default:
                 throw new Error(`Unsupported AI Tabby action: ${action.action}`)
         }
@@ -225,10 +225,10 @@ export class AITabbyToolsService {
             tabIndex: index,
             title: tab.title,
             active: tab === this.app.activeTab,
-            type: tab.constructor?.name,
+            type: tab.constructor.name,
             panes: tab instanceof SplitTabComponent ? tab.getAllTabs().map(pane => ({
                 title: pane.title,
-                type: pane.constructor?.name,
+                type: pane.constructor.name,
             })) : undefined,
         }))
         return JSON.stringify({ success: true, tabs, count: tabs.length }, null, 2)
@@ -281,12 +281,12 @@ export class AITabbyToolsService {
 
     private async openProfile (action: AITabbyToolAction): Promise<AITabbyToolResult> {
         const allProfiles = await this.profiles.getProfiles()
-        const profile = allProfiles.find(p =>
-            (action.profileId && p.id === action.profileId) ||
-            (action.profileName && p.name.toLowerCase().includes(action.profileName.toLowerCase()))
+        const profile = allProfiles.find(p => action.profileId
+            ? p.id === action.profileId
+            : !!action.profileName && p.name.toLowerCase().includes(action.profileName.toLowerCase()),
         )
         if (!profile) {
-            throw new Error(`Profile not found: ${action.profileId || action.profileName || ''}`)
+            throw new Error(`Profile not found: ${action.profileId ?? action.profileName ?? ''}`)
         }
         const tab = await this.profiles.openNewTabForProfile(profile)
         const terminal = tab ? this.firstTerminal(tab) : undefined
@@ -328,7 +328,7 @@ export class AITabbyToolsService {
     }
 
     private async openSSH (action: AITabbyToolAction): Promise<AITabbyToolResult> {
-        return await this.quickConnect({
+        return this.quickConnect({
             ...action,
             action: 'quickConnect',
             protocol: 'ssh',
@@ -341,7 +341,7 @@ export class AITabbyToolsService {
         activeTerminal: BaseTerminalTabComponent<any>,
     ): Promise<AITabbyToolResult> {
         const sftp = await this.getSFTP(action, activeTerminal)
-        const remotePath = this.normalizeRemotePath(action.path || '.')
+        const remotePath = this.normalizeRemotePath(action.path ?? '.')
         const files = await sftp.readdir(remotePath)
         return {
             mutates: false,
@@ -443,7 +443,7 @@ export class AITabbyToolsService {
     }
 
     private inferProtocol (query: string): 'auto'|'ssh'|'telnet'|'socket'|'serial' {
-        const scheme = query.match(/^([a-z][a-z0-9+.-]*):\/\//i)?.[1]?.toLowerCase()
+        const scheme = /^([a-z][a-z0-9+.-]*):\/\//i.exec(query)?.[1]?.toLowerCase()
         if (scheme === 'ssh' || scheme === 'telnet' || scheme === 'socket' || scheme === 'serial') {
             return scheme
         }
@@ -494,7 +494,7 @@ export class AITabbyToolsService {
         if (!sshSession?.open) {
             throw new Error('SFTP requires an active SSH tab/session')
         }
-        return await sshSession.openSFTP()
+        return sshSession.openSFTP()
     }
 
     private async readRemoteText (sftp: any, remotePath: string): Promise<string> {
@@ -566,7 +566,7 @@ export class AITabbyToolsService {
         }
         if (locator.title) {
             const title = locator.title.toLowerCase()
-            return this.app.tabs.find(tab => tab.title?.toLowerCase().includes(title)) ?? null
+            return this.app.tabs.find(tab => tab.title.toLowerCase().includes(title)) ?? null
         }
         return this.app.activeTab
     }

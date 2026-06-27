@@ -98,7 +98,7 @@ export class OpenAICompatibleService {
     }
 
     private getBaseUrl (): string {
-        const baseUrl = (this.config.store.ai.baseUrl || '').replace(/\/+$/, '')
+        const baseUrl = (this.config.store.ai.baseUrl ?? '').replace(/\/+$/, '')
         if (!baseUrl) {
             throw new Error('AI base URL is not configured')
         }
@@ -106,7 +106,8 @@ export class OpenAICompatibleService {
     }
 
     private getHeaders (): Record<string, string> {
-        const apiKey = this.config.store.ai.apiKey || process.env.OPENAI_API_KEY || ''
+        const configuredApiKey = this.config.store.ai.apiKey
+        const apiKey = configuredApiKey ? configuredApiKey : process.env.OPENAI_API_KEY ?? ''
         if (!apiKey) {
             throw new Error('AI API key is not configured')
         }

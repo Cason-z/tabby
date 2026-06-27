@@ -71,7 +71,7 @@ export class AITerminalControllerService {
             const action = await this.askModel(objective, context, transcript)
 
             if (action.done) {
-                callbacks.done(action.summary || 'Done')
+                callbacks.done(action.summary ?? 'Done')
                 return
             }
 
@@ -105,7 +105,7 @@ export class AITerminalControllerService {
 
             const command = this.normalizeCommand(action.command)
             if (!command) {
-                callbacks.done(action.summary || action.reason || 'Model returned no command')
+                callbacks.done(action.summary ?? action.reason ?? 'Model returned no command')
                 return
             }
 
@@ -117,7 +117,7 @@ export class AITerminalControllerService {
 
             callbacks.step('Executing command')
             const result = await this.executeCommand(activeTerminal, command, isCancelled)
-            callbacks.output(result.output || '(no output)')
+            callbacks.output(result.output ?? '(no output)')
             transcript.push({
                 role: 'assistant',
                 content: JSON.stringify(action),
@@ -128,7 +128,7 @@ export class AITerminalControllerService {
             })
 
             if (!result.completed) {
-                callbacks.error(result.error || 'Command did not complete before timeout')
+                callbacks.error(result.error ?? 'Command did not complete before timeout')
                 return
             }
         }
@@ -138,7 +138,7 @@ export class AITerminalControllerService {
 
     private async askModel (objective: string, context: string, transcript: ChatMessage[]): Promise<AIAction> {
         const customPrompt = this.config.store.ai.systemPrompt
-        const system = customPrompt || [
+        const system = customPrompt.trim() ? customPrompt : [
             'You are an AI terminal operator embedded in Tabby.',
             'You control an existing interactive terminal session by proposing exactly one tool action per step.',
             'Use {"action":"terminalCommand","reason":"short reason","command":"single-line command","done":false} to run one command in the active terminal.',
@@ -158,13 +158,13 @@ export class AITerminalControllerService {
             'When the task is complete, return {"done":true,"summary":"what changed or what you found"}.',
         ].join('\n')
 
-        return await this.llm.completeJSON([
+        return this.llm.completeJSON([
             { role: 'system', content: system },
             {
                 role: 'user',
                 content: [
                     `Objective:\n${objective}`,
-                    `Recent terminal context:\n${context || '(empty)'}`,
+                    `Recent terminal context:\n${context ? context : '(empty)'}`,
                 ].join('\n\n'),
             },
             ...transcript.slice(-12),
@@ -219,7 +219,7 @@ export class AITerminalControllerService {
         command: string,
         isCancelled: () => boolean,
     ): Promise<{ completed: boolean, output: string, error?: string }> {
-        const timeout = this.config.store.ai.stepTimeout || 60000
+        const timeout = this.config.store.ai.stepTimeout ?? 60000
         const doneMarker = `__TABBY_AI_DONE_${Math.random().toString(16).slice(2)}__`
         let output = ''
 
