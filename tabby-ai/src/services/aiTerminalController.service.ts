@@ -117,7 +117,7 @@ export class AITerminalControllerService {
 
             callbacks.step('Executing command')
             const result = await this.executeCommand(activeTerminal, command, isCancelled)
-            callbacks.output(result.output ?? '(no output)')
+            callbacks.output(result.output ? result.output : '(no output)')
             transcript.push({
                 role: 'assistant',
                 content: JSON.stringify(action),
