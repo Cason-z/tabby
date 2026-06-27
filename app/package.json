@@ -53,6 +53,7 @@
   },
   "peerDependencies": {
     "tabby-community-color-schemes": "*",
+    "tabby-ai": "*",
     "tabby-core": "*",
     "tabby-electron": "*",
     "tabby-local": "*",

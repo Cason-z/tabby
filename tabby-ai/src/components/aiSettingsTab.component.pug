@@ -1,0 +1,147 @@
+h3 AI
+
+.form-line
+    .header
+        .title Enable AI terminal takeover
+        .description Adds AI controls to terminal and SSH tab context menus.
+    toggle(
+        [(ngModel)]='config.store.ai.enabled',
+        (ngModelChange)='save()',
+    )
+
+.form-line
+    .header
+        .title Provider
+        .description Choose a preset or use a custom OpenAI-compatible API.
+    select.form-control(
+        [(ngModel)]='config.store.ai.provider',
+        (ngModelChange)='applyProvider()',
+    )
+        option(
+            *ngFor='let provider of providers; trackBy: trackProvider',
+            [value]='provider.id',
+        ) {{provider.name}}
+
+.form-line
+    .header
+        .title API base URL
+        .description OpenAI-compatible endpoint root, ending before /chat/completions.
+    input.form-control(
+        type='text',
+        [(ngModel)]='config.store.ai.baseUrl',
+        (ngModelChange)='save()',
+    )
+
+.form-line
+    .header
+        .title Model
+        .description Type a model name or fetch models from the provider.
+    .input-group
+        input.form-control(
+            type='text',
+            list='ai-model-options',
+            [(ngModel)]='config.store.ai.model',
+            (ngModelChange)='save()',
+        )
+        button.btn.btn-secondary(
+            type='button',
+            (click)='refreshModels()',
+            [disabled]='loadingModels',
+        )
+            i.fas.fa-sync-alt.me-2([class.fa-spin]='loadingModels')
+            span Models
+    datalist#ai-model-options
+        option(
+            *ngFor='let model of config.store.ai.availableModels',
+            [value]='model',
+        )
+    .text-danger.mt-2(*ngIf='modelListError') {{modelListError}}
+
+.form-line
+    .header
+        .title API key
+        .description Leave empty to use OPENAI_API_KEY from the environment.
+    input.form-control(
+        type='password',
+        autocomplete='off',
+        [(ngModel)]='config.store.ai.apiKey',
+        (ngModelChange)='save()',
+    )
+
+.form-line
+    .header
+        .title AI terminal permissions
+        .description Approval asks before each command. Full access lets AI run commands without prompts.
+    select.form-control(
+        [(ngModel)]='config.store.ai.permissionMode',
+        (ngModelChange)='save()',
+    )
+        option(value='approve') Approve each command
+        option(value='fullAccess') Full access
+
+.form-line
+    .header
+        .title Max steps
+    input.form-control(
+        type='number',
+        min='1',
+        max='50',
+        [(ngModel)]='config.store.ai.maxSteps',
+        (ngModelChange)='save()',
+    )
+
+.form-line
+    .header
+        .title Step timeout, ms
+    input.form-control(
+        type='number',
+        min='1000',
+        step='1000',
+        [(ngModel)]='config.store.ai.stepTimeout',
+        (ngModelChange)='save()',
+    )
+
+.form-line
+    .header
+        .title Idle wait after command, ms
+        .description AI continues after terminal output stays idle for this long.
+    input.form-control(
+        type='number',
+        min='250',
+        step='250',
+        [(ngModel)]='config.store.ai.idleTimeout',
+        (ngModelChange)='save()',
+    )
+
+.form-line
+    .header
+        .title Max context characters
+    input.form-control(
+        type='number',
+        min='2000',
+        step='1000',
+        [(ngModel)]='config.store.ai.maxContextChars',
+        (ngModelChange)='save()',
+    )
+
+.form-line
+    .header
+        .title Temperature
+    input.form-control(
+        type='number',
+        min='0',
+        max='2',
+        step='0.1',
+        [(ngModel)]='config.store.ai.temperature',
+        (ngModelChange)='save()',
+    )
+
+.form-line
+    .header
+        .title Custom system prompt
+        .description Optional. Leave empty to use the built-in safe terminal operator prompt.
+    textarea.form-control(
+        rows='6',
+        [(ngModel)]='config.store.ai.systemPrompt',
+        (ngModelChange)='save()',
+    )

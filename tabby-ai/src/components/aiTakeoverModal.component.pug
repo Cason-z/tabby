@@ -1,0 +1,27 @@
+.modal-header
+    h5.modal-title AI terminal takeover
+    button.btn-close((click)='close()')
+
+.modal-body
+    .form-line
+        .header
+            .title Objective
+            .description Tell AI what to do in this terminal or SSH session.
+        textarea.form-control(
+            rows='4',
+            [(ngModel)]='objective',
+            [disabled]='running',
+            placeholder='Connect SSH root@example.com, inspect why nginx is down, and fix it safely.'
+        )
+
+    .ai-log.mt-3(*ngIf='logs.length')
+        .ai-log-line(*ngFor='let log of logs', [class.command]='log.kind === "command"', [class.output]='log.kind === "output"', [class.error]='log.kind === "error"', [class.done]='log.kind === "done"')
+            .kind {{log.kind}}
+            pre {{log.text}}
+
+.modal-footer
+    button.btn.btn-secondary((click)='close()', [disabled]='running') Close
+    button.btn.btn-warning((click)='stop()', *ngIf='running') Stop
+    button.btn.btn-primary((click)='start()', [disabled]='running || !objective.trim()')
+        i.fas.fa-robot.me-2
+        span Start

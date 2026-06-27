@@ -1,0 +1,40 @@
+.ai-log {
+    max-height: 360px;
+    overflow: auto;
+    border: 1px solid rgba(128, 128, 128, 0.25);
+    border-radius: 6px;
+}
+
+.ai-log-line {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.18);
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    .kind {
+        font-size: 11px;
+        text-transform: uppercase;
+        opacity: 0.7;
+        margin-bottom: 4px;
+    }
+
+    pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    &.command pre {
+        color: #5fb3ff;
+    }
+
+    &.error pre {
+        color: #ff6b6b;
+    }
+
+    &.done pre {
+        color: #5cc46b;
+    }
+}

@@ -22,6 +22,7 @@ export const builtinPlugins = [
     'tabby-core',
     'tabby-settings',
     'tabby-terminal',
+    'tabby-ai',
     'tabby-web',
     'tabby-community-color-schemes',
     'tabby-ssh',
